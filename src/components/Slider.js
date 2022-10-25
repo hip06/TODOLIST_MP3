@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { getArrSlider } from '../ultis/fn'
 
 const Slider = () => {
 
@@ -7,12 +8,31 @@ const Slider = () => {
 
     useEffect(() => {
         const sliderEls = document.getElementsByClassName('slider-item')
-        for (let i = 0; i < sliderEls.length; i++) {
-            if (i < 3) {
-                sliderEls[i].style.cssText = `display: none`
-            } else {
-
+        let min = 0
+        let max = 2
+        const intervalId = setInterval(() => {
+            const list = getArrSlider(min, max, sliderEls.length - 1)
+            for (let i = 0; i < sliderEls.length; i++) {
+                if (list.some(item => item === i)) {
+                    sliderEls[i].style.cssText = `display: block`
+                } else {
+                    sliderEls[i].style.cssText = `display: none`
+                }
             }
+            if (min === sliderEls.length - 1) {
+                min = 0
+            } else {
+                min += 1
+            }
+            if (max === sliderEls.length - 1) {
+                max = 0
+            } else {
+                max += 1
+            }
+            console.log(list)
+        }, 1000)
+        return () => {
+            intervalId && clearInterval(intervalId)
         }
     }, [])
 
