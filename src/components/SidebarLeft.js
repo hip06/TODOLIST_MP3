@@ -8,7 +8,7 @@ const activeStyle = 'py-2 px-[25px] font-bold text-[#0F7070] text-[13px] flex ga
 
 const SidebarLeft = () => {
     return (
-        <div className='flex flex-col bg-[#DDE4E4]'>
+        <div className='flex h-full flex-col bg-main-200'>
             <div className='w-full h-[70px] py-[15px] px-[25px] flex justify-start items-center'>
                 <img src={logo} alt="logo" className='w-[120px] h-10' />
             </div>
