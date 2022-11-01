@@ -6,12 +6,12 @@ import * as actions from '../store/actions'
 import { toast } from 'react-toastify'
 
 const { AiOutlineHeart, AiFillHeart, BsThreeDots, MdSkipNext, MdSkipPrevious, CiRepeat, BsPauseFill, BsFillPlayFill, CiShuffle } = icons
-
+var intervalId
 const Player = () => {
-    const audioEl = useRef(new Audio())
+    // const audioEl = useRef(new Audio())
+    const [audio, setAudio] = useState(new Audio())
     const { curSongId, isPlaying } = useSelector(state => state.music)
     const [songInfo, setSongInfo] = useState(null)
-    const [source, setSource] = useState(null)
     const thumbRef = useRef()
     const trackRef = useRef()
     const dispatch = useDispatch()
@@ -26,11 +26,10 @@ const Player = () => {
                 setSongInfo(res1.data.data)
             }
             if (res2.data.err === 0) {
-                setSource(res2.data.data['128'])
+                setAudio(new Audio(res2.data.data['128']))
             } else {
                 dispatch(actions.play(false))
-                audioEl.current.src = undefined
-                audioEl.current.pause()
+                setAudio(new Audio())
                 toast.info(res2.data.msg)
             }
         }
@@ -39,33 +38,42 @@ const Player = () => {
     }, [curSongId])
     // console.log({ curSongId, source });
     const play = async () => {
-        await audioEl.current.play()
+        await audio.play()
     }
 
     useEffect(() => {
-        audioEl.current.pause()
-        audioEl.current.src = source
-        audioEl.current.load()
+        audio.load()
         if (isPlaying) play()
-    }, [curSongId, source])
+    }, [audio])
+
+    useEffect(() => {
+        if (isPlaying) {
+            const thumbEl = document.getElementById('thumb-progress')
+            intervalId = setInterval(() => {
+                let percent = Math.round(audio.currentTime * 10000 / songInfo.duration) / 100
+                console.log(percent)
+                thumbRef.current.style.cssText = `right: ${100 - percent}%`
+            }, 200)
+        } else {
+            intervalId && clearInterval(intervalId)
+        }
+    }, [isPlaying])
 
     const handleTogglePlayMusic = async () => {
         if (isPlaying) {
-            audioEl.current.pause()
+            audio.pause()
             dispatch(actions.play(false))
         } else {
             play()
             dispatch(actions.play(true))
-            // window.requestAnimationFrame(handleAnimationProgressBar)
         }
     }
-    useEffect(() => {
-        console.log(audioEl.current.currentTime)
-        if (isPlaying && thumbRef.current) {
-            let percent = Math.round(audioEl.current.currentTime * 100 / songInfo.duration)
-            thumbRef.current.cssText = `right: ${percent}%`
-        }
-    }, [audioEl.current.currentTime])
+    // const handleAnimationProgressBar = () => {
+    //     console.log(audio.currentTime);
+    //     let percent = Math.round(audio.currentTime * 100 / songInfo.duration)
+    //     thumbRef.current.cssText = `right: ${percent}%`
+    //     requestAnimationFrame(handleAnimationProgressBar)
+    // }
 
     return (
         <div className='bg-main-400 px-5 h-full flex'>
@@ -100,7 +108,7 @@ const Player = () => {
                 </div>
                 <div className='w-full'>
                     <div ref={trackRef} className='bg-[rgba(0,0,0,0.1)] relative m-auto h-[3px] w-4/5 rounded-l-full rounded-r-full'>
-                        <div ref={thumbRef} className='bg-[#0e8080] absolute top-0 left-0 h-[3px] rounded-l-full rounded-r-full'></div>
+                        <div ref={thumbRef} id='thumb-progress' className='bg-[#0e8080] absolute top-0 left-0 h-[3px] rounded-l-full rounded-r-full'></div>
                     </div>
 
                 </div>
