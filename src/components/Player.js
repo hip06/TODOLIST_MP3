@@ -6,7 +6,7 @@ import * as actions from '../store/actions'
 import moment from 'moment'
 import { toast } from 'react-toastify'
 
-const { AiOutlineHeart, AiFillHeart, BsThreeDots, MdSkipNext, MdSkipPrevious, CiRepeat, BsPauseFill, BsFillPlayFill, CiShuffle } = icons
+const { AiOutlineHeart, AiFillHeart, BsThreeDots, MdSkipNext, MdSkipPrevious, CiRepeat, BsPauseFill, BsFillPlayFill, CiShuffle, TbRepeatOnce } = icons
 var intervalId
 const Player = () => {
     const { curSongId, isPlaying, songs } = useSelector(state => state.music)
@@ -14,7 +14,7 @@ const Player = () => {
     const [audio, setAudio] = useState(new Audio())
     const [curSeconds, setCurSeconds] = useState(0)
     const [isShuffe, setIsShuffe] = useState(false)
-    const [isRepeat, setIsRepeat] = useState(false)
+    const [repeatMode, setRepeatMode] = useState(0)
     const dispatch = useDispatch()
     const thumbRef = useRef()
     const trackRef = useRef()
@@ -60,11 +60,10 @@ const Player = () => {
 
     useEffect(() => {
         const handleEnded = () => {
-            console.log(isShuffe)
             if (isShuffe) {
                 handleShuffle()
-            } else if (isRepeat) {
-                handleNextSong()
+            } else if (repeatMode) {
+                repeatMode === 1 ? handleRepeatOne() : handleNextSong()
             } else {
                 audio.pause()
                 dispatch(actions.play(false))
@@ -76,7 +75,7 @@ const Player = () => {
             audio.removeEventListener('ended', handleEnded)
         }
 
-    }, [audio, isShuffe, isRepeat])
+    }, [audio, isShuffe, repeatMode])
 
     const handleTogglePlayMusic = async () => {
         if (isPlaying) {
@@ -114,11 +113,13 @@ const Player = () => {
             dispatch(actions.play(true))
         }
     }
+    const handleRepeatOne = () => {
+        audio.play()
+    }
     const handleShuffle = () => {
         const randomIndex = Math.round(Math.random() * songs?.length) - 1
         dispatch(actions.setCurSongId(songs[randomIndex].encodeId))
         dispatch(actions.play(true))
-        setIsShuffe(prev => !prev)
     }
 
     return (
@@ -166,11 +167,11 @@ const Player = () => {
                         <MdSkipNext size={24} />
                     </span>
                     <span
-                        className={`cursor-pointer ${isRepeat && 'text-purple-600'}`}
+                        className={`cursor-pointer ${repeatMode && 'text-purple-600'}`}
                         title='Bật phát lại tất cả'
-                        onClick={() => setIsRepeat(prev => !prev)}
+                        onClick={() => setRepeatMode(prev => prev === 2 ? 0 : prev + 1)}
                     >
-                        <CiRepeat size={24} />
+                        {repeatMode === 1 ? <TbRepeatOnce size={24} /> : <CiRepeat size={24} />}
                     </span>
                 </div>
                 <div className='w-full flex items-center justify-center gap-3 text-xs'>
