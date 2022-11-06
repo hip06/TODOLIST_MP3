@@ -9,10 +9,12 @@ import { toast } from 'react-toastify'
 const { AiOutlineHeart, AiFillHeart, BsThreeDots, MdSkipNext, MdSkipPrevious, CiRepeat, BsPauseFill, BsFillPlayFill, CiShuffle } = icons
 var intervalId
 const Player = () => {
-    const { curSongId, isPlaying } = useSelector(state => state.music)
+    const { curSongId, isPlaying, songs } = useSelector(state => state.music)
     const [songInfo, setSongInfo] = useState(null)
     const [audio, setAudio] = useState(new Audio())
     const [curSeconds, setCurSeconds] = useState(0)
+    const [isShuffe, setIsShuffe] = useState(false)
+    const [isRepeat, setIsRepeat] = useState(false)
     const dispatch = useDispatch()
     const thumbRef = useRef()
     const trackRef = useRef()
@@ -30,6 +32,7 @@ const Player = () => {
                 audio.pause()
                 setAudio(new Audio(res2.data.data['128']))
             } else {
+                audio.pause()
                 setAudio(new Audio())
                 dispatch(actions.play(false))
                 toast.warn(res2.data.msg)
@@ -45,7 +48,7 @@ const Player = () => {
         intervalId && clearInterval(intervalId)
         audio.pause()
         audio.load()
-        if (isPlaying) {
+        if (isPlaying && thumbRef.current) {
             audio.play()
             intervalId = setInterval(() => {
                 let percent = Math.round(audio.currentTime * 10000 / songInfo.duration) / 100
@@ -54,6 +57,26 @@ const Player = () => {
             }, 200)
         }
     }, [audio])
+
+    useEffect(() => {
+        const handleEnded = () => {
+            console.log(isShuffe)
+            if (isShuffe) {
+                handleShuffle()
+            } else if (isRepeat) {
+                handleNextSong()
+            } else {
+                audio.pause()
+                dispatch(actions.play(false))
+            }
+        }
+        audio.addEventListener('ended', handleEnded)
+
+        return () => {
+            audio.removeEventListener('ended', handleEnded)
+        }
+
+    }, [audio, isShuffe, isRepeat])
 
     const handleTogglePlayMusic = async () => {
         if (isPlaying) {
@@ -70,6 +93,32 @@ const Player = () => {
         thumbRef.current.style.cssText = `right: ${100 - percent}%`
         audio.currentTime = percent * songInfo.duration / 100
         setCurSeconds(Math.round(percent * songInfo.duration / 100))
+    }
+    const handleNextSong = () => {
+        if (songs) {
+            let currentSongIndex
+            songs?.forEach((item, index) => {
+                if (item.encodeId === curSongId) currentSongIndex = index
+            })
+            dispatch(actions.setCurSongId(songs[currentSongIndex + 1].encodeId))
+            dispatch(actions.play(true))
+        }
+    }
+    const handlePrevSong = () => {
+        if (songs) {
+            let currentSongIndex
+            songs?.forEach((item, index) => {
+                if (item.encodeId === curSongId) currentSongIndex = index
+            })
+            dispatch(actions.setCurSongId(songs[currentSongIndex - 1].encodeId))
+            dispatch(actions.play(true))
+        }
+    }
+    const handleShuffle = () => {
+        const randomIndex = Math.round(Math.random() * songs?.length) - 1
+        dispatch(actions.setCurSongId(songs[randomIndex].encodeId))
+        dispatch(actions.play(true))
+        setIsShuffe(prev => !prev)
     }
 
     return (
@@ -91,16 +140,38 @@ const Player = () => {
             </div>
             <div className='w-[40%] flex-auto border flex items-center justify-center gap-4 flex-col border-red-500 py-2'>
                 <div className='flex gap-8 justify-center items-center'>
-                    <span className='cursor-pointer' title='Bật phát ngẫu nhiên'><CiShuffle size={24} /></span>
-                    <span className='cursor-pointer'><MdSkipPrevious size={24} /></span>
+                    <span
+                        className={`cursor-pointer ${isShuffe ? 'text-purple-600' : 'text-black'}`}
+                        title='Bật phát ngẫu nhiên'
+                        onClick={() => setIsShuffe(prev => !prev)}
+                    >
+                        <CiShuffle size={24} />
+                    </span>
+                    <span
+                        onClick={handlePrevSong}
+                        className={`${!songs ? 'text-gray-500' : 'cursor-pointer'}`}
+                    >
+                        <MdSkipPrevious size={24} />
+                    </span>
                     <span
                         className='p-1 border border-gray-700 cursor-pointer hover:text-main-500 rounded-full'
                         onClick={handleTogglePlayMusic}
                     >
                         {isPlaying ? <BsPauseFill size={30} /> : <BsFillPlayFill size={30} />}
                     </span>
-                    <span className='cursor-pointer'><MdSkipNext size={24} /></span>
-                    <span className='cursor-pointer' title='Bật phát lại tất cả'><CiRepeat size={24} /></span>
+                    <span
+                        onClick={handleNextSong}
+                        className={`${!songs ? 'text-gray-500' : 'cursor-pointer'}`}
+                    >
+                        <MdSkipNext size={24} />
+                    </span>
+                    <span
+                        className={`cursor-pointer ${isRepeat && 'text-purple-600'}`}
+                        title='Bật phát lại tất cả'
+                        onClick={() => setIsRepeat(prev => !prev)}
+                    >
+                        <CiRepeat size={24} />
+                    </span>
                 </div>
                 <div className='w-full flex items-center justify-center gap-3 text-xs'>
                     <span className=''>{moment.utc(curSeconds * 1000).format('mm:ss')}</span>
