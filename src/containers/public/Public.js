@@ -21,7 +21,7 @@ const Public = () => {
                         <Header />
                     </div>
                     <div className='flex-auto w-full'>
-                        <Scrollbars style={{ width: '100%', height: '100%' }}>
+                        <Scrollbars autoHide style={{ width: '100%', height: '100%' }}>
                             <Outlet />
                         </Scrollbars>
                     </div>

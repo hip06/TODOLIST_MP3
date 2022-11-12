@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Slider, Section } from '../../components'
+import { Slider, Section, NewRelease } from '../../components'
 import { useSelector } from 'react-redux'
 const Home = () => {
     const { friday, newEveryday, top100, xone, newMusic } = useSelector(state => state.app)
@@ -10,6 +10,7 @@ const Home = () => {
             <Slider />
             <Section data={friday} />
             <Section data={newEveryday} />
+            <NewRelease />
             <Section data={top100} />
             <Section data={xone} />
             <Section data={newMusic} />
