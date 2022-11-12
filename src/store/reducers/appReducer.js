@@ -8,7 +8,9 @@ const initState = {
     xone: {},
     newMusic: [],
     isLoading: false,
-    newRelease: {}
+    newRelease: {},
+    weekChart: [],
+    favoritedArtist: {}
 
 }
 
@@ -24,6 +26,8 @@ const appReducer = (state = initState, action) => {
                 xone: action.homeData?.find(item => item.sectionId === 'hXone') || {},
                 newMusic: { ...action.homeData?.find(item => item.sectionId === 'hAlbum'), title: 'Nhạc mới' } || {},
                 newRelease: action.homeData?.find(item => item.sectionType === 'new-release') || {},
+                weekChart: action.homeData?.find(item => item.sectionType === 'weekChart')?.items || [],
+                favoritedArtist: action.homeData?.find(item => item.sectionId === 'hMix') || {},
             }
         case actionTypes.LOADING:
             return {
