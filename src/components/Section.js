@@ -1,12 +1,11 @@
-import React, { memo } from 'react'
+import React, { memo, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
+import { SectionItem } from './'
 
 const Section = ({ data }) => {
-
-
-    const navigate = useNavigate()
     // console.log(data)
+
     return (
         <div className='mt-12 px-[59px] flex flex-col gap-5'>
             <div className='flex items-center justify-between'>
@@ -15,20 +14,14 @@ const Section = ({ data }) => {
             </div>
             <div className='flex items-start justify-between gap-[28px]'>
                 {data && data?.items?.length > 0 && data.items.filter((item, index) => index <= 4)?.map(item => (
-                    <div
+                    <SectionItem
                         key={item.encodeId}
-                        onClick={() => {
-                            navigate(item?.link?.split('.')[0])
-                        }}
-                        className='flex flex-col gap-3 flex-auto justify-start w-1/5 text-sm cursor-pointer'
-                    >
-                        <img src={item.thumbnailM} alt="avatar" className='w-full h-auto rounded-lg' />
-                        <span className='flex flex-col'>
-                            <span className='font-semibold'>{item.title}</span>
-                            {data?.sectionId === 'h100' ? <span>{item.artistsNames}</span> : <span>{item.sortDescription?.length >= 40 ? `${item.sortDescription?.slice(0, 40)}...` : item.sortDescription}</span>}
-
-                        </span>
-                    </div>
+                        data={data}
+                        title={item.title}
+                        link={item.link}
+                        sortDescription={item.sortDescription}
+                        thumbnailM={item.thumbnailM}
+                    />
                 ))}
             </div>
         </div>
