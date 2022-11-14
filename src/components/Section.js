@@ -1,6 +1,5 @@
-import React, { memo, useState } from 'react'
+import React, { memo } from 'react'
 
-import { useNavigate } from 'react-router-dom'
 import { SectionItem } from './'
 
 const Section = ({ data }) => {

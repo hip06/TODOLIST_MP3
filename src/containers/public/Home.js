@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react'
-import { Slider, Section, NewRelease } from '../../components'
+import { Slider, Section, NewRelease, Chart } from '../../components'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { FiFilter } from 'react-icons/fi'
 const Home = () => {
     const { friday, newEveryday, top100, xone, newMusic, weekChart, favoritedArtist } = useSelector(state => state.app)
 
@@ -16,6 +15,7 @@ const Home = () => {
             <Section data={top100} />
             <Section data={xone} />
             <Section data={newMusic} />
+            <Chart />
             <div className='flex items-center px-[43px] w-full mt-12'>
                 {weekChart?.map(item => (
                     <Link to={item?.link?.split('.')[0]} key={item.link} className='flex-1 px-4'>
