@@ -5,8 +5,7 @@ import 'moment/locale/vi'
 import { useDispatch } from 'react-redux'
 import * as actions from '../store/actions'
 
-const SongItem = ({ thumbnail, title, artists, sid, releaseDate, order, percent }) => {
-    console.log({ order, percent });
+const SongItem = ({ thumbnail, title, artists, sid, releaseDate, order, percent, style }) => {
 
     const dispatch = useDispatch()
     return (
@@ -15,10 +14,10 @@ const SongItem = ({ thumbnail, title, artists, sid, releaseDate, order, percent 
                 dispatch(actions.setCurSongId(sid))
                 dispatch(actions.play(true))
             }}
-            className={`w-full flex p-[10px] gap-[10px] justify-between items-center rounded-md cursor-pointer ${order ? 'text-white bg-[hsla(0,0%,100%,.07)] hover:bg-[#945EA7]' : 'text-black hover:bg-main-200'}`}
+            className={`w-full flex p-[10px] gap-[10px] justify-between items-center rounded-md cursor-pointer ${style || 'text-black hover:bg-main-200'}`}
         >
             <div className='flex gap-4'>
-                {order && <span className={`${order === 1 ? '' : ''} text-white drop-shadow-md text-[32px] m-auto`}>{order}</span>}
+                {order && <span className={`${order === 1 ? 'text-shadow' : ''} text-[rgba(77,34,104,0.9)] text-[32px] m-auto`}>{order}</span>}
                 <img src={thumbnail} alt="thumbnail" className='w-[60px] h-[60px] object-cover rounded-md' />
                 <div className='flex flex-col'>
                     <span className='text-sm font-semibold'>{title}</span>
